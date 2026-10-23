@@ -3,18 +3,30 @@
   "name": "fortran-lsp",
   "description": "Fortran Language Server (fortls) marketplace for Claude Code",
   "owner": {
-    "name": "Ricardo Frantz"
+    "name": "Ricardo Frantz",
+    "url": "https://github.com/ricardofrantz"
   },
   "plugins": [
     {
       "name": "fortls-lsp",
-      "description": "Fortran language server for code intelligence and diagnostics",
-      "version": "1.1.0",
+      "description": "Fortran language server (fortls) for code intelligence and diagnostics",
+      "version": "1.2.0",
       "author": {
-        "name": "Ricardo Frantz"
+        "name": "Ricardo Frantz",
+        "url": "https://github.com/ricardofrantz"
       },
       "source": "./plugins/fortls-lsp",
       "homepage": "https://fortls.fortran-lang.org/",
+      "repository": "https://github.com/ricardofrantz/fortran-lsp",
+      "license": "MIT",
+      "keywords": [
+        "fortran",
+        "fortls",
+        "lsp",
+        "language-server",
+        "hpc",
+        "scientific-computing"
+      ],
       "category": "development",
       "strict": false,
       "lspServers": {
