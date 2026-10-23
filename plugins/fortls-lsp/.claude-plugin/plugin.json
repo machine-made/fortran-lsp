@@ -1,0 +1,41 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "fortls-lsp",
+  "displayName": "Fortran LSP (fortls)",
+  "version": "1.2.0",
+  "description": "Fortran language server (fortls) for code intelligence and diagnostics",
+  "author": {
+    "name": "Ricardo Frantz",
+    "url": "https://github.com/ricardofrantz"
+  },
+  "homepage": "https://fortls.fortran-lang.org/",
+  "repository": "https://github.com/ricardofrantz/fortran-lsp",
+  "license": "MIT",
+  "keywords": ["fortran", "fortls", "lsp", "language-server", "hpc", "scientific-computing"],
+  "icon": "./.claude-plugin/icon.png",
+  "lspServers": {
+    "fortls": {
+      "command": "fortls",
+      "args": ["--notify_init"],
+      "startupTimeout": 120000,
+      "extensionToLanguage": {
+        ".f": "fortran",
+        ".f90": "fortran",
+        ".f95": "fortran",
+        ".f03": "fortran",
+        ".f08": "fortran",
+        ".f77": "fortran",
+        ".fpp": "fortran",
+        ".F": "fortran",
+        ".F90": "fortran",
+        ".F95": "fortran",
+        ".F03": "fortran",
+        ".F08": "fortran",
+        ".F77": "fortran",
+        ".FPP": "fortran",
+        ".for": "fortran",
+        ".FOR": "fortran"
+      }
+    }
+  }
+}

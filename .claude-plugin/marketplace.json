@@ -27,33 +27,7 @@
         "hpc",
         "scientific-computing"
       ],
-      "category": "development",
-      "strict": false,
-      "lspServers": {
-        "fortls": {
-          "command": "fortls",
-          "args": ["--notify_init"],
-          "startupTimeout": 120000,
-          "extensionToLanguage": {
-            ".f": "fortran",
-            ".f90": "fortran",
-            ".f95": "fortran",
-            ".f03": "fortran",
-            ".f08": "fortran",
-            ".f77": "fortran",
-            ".fpp": "fortran",
-            ".F": "fortran",
-            ".F90": "fortran",
-            ".F95": "fortran",
-            ".F03": "fortran",
-            ".F08": "fortran",
-            ".F77": "fortran",
-            ".FPP": "fortran",
-            ".for": "fortran",
-            ".FOR": "fortran"
-          }
-        }
-      }
+      "category": "development"
     }
   ]
 }
