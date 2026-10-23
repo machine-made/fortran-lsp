@@ -10,13 +10,15 @@
   },
   "homepage": "https://fortls.fortran-lang.org/",
   "repository": "https://github.com/ricardofrantz/fortran-lsp",
+  "supportUrl": "https://github.com/ricardofrantz/fortran-lsp/issues",
+  "privacyPolicyUrl": "https://github.com/ricardofrantz/fortran-lsp/blob/main/plugins/fortls-lsp/README.md#privacy",
   "license": "MIT",
   "keywords": ["fortran", "fortls", "lsp", "language-server", "hpc", "scientific-computing"],
   "icon": "./.claude-plugin/icon.png",
   "lspServers": {
     "fortls": {
       "command": "fortls",
-      "args": ["--notify_init"],
+      "args": ["--notify_init", "--disable_autoupdate"],
       "startupTimeout": 120000,
       "extensionToLanguage": {
         ".f": "fortran",
