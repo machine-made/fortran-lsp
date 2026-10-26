@@ -11,11 +11,11 @@ Fortran Language Server ([fortls](https://github.com/fortran-lang/fortls)) marke
 
 2. **Install the plugin:**
    ```
-   /plugin install fortls-lsp --marketplace ricardofrantz/fortran-lsp
+   /plugin install fortls-lsp --marketplace machine-made/fortran-lsp
    ```
    On Claude Code versions before 2.1.275, add the marketplace first:
    ```
-   /plugin marketplace add ricardofrantz/fortran-lsp
+   /plugin marketplace add machine-made/fortran-lsp
    /plugin install fortls-lsp@fortran-lsp
    ```
 

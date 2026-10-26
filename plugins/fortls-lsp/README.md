@@ -36,11 +36,11 @@ This is the same set that fortls indexes by default.
 
 2. Install the plugin in Claude Code:
    ```
-   /plugin install fortls-lsp --marketplace ricardofrantz/fortran-lsp
+   /plugin install fortls-lsp --marketplace machine-made/fortran-lsp
    ```
    On Claude Code versions before 2.1.275, add the marketplace first:
    ```
-   /plugin marketplace add ricardofrantz/fortran-lsp
+   /plugin marketplace add machine-made/fortran-lsp
    /plugin install fortls-lsp@fortran-lsp
    ```
 
@@ -69,7 +69,7 @@ This plugin collects no data and sends nothing over the network. It only tells C
 
 ## Support
 
-Report problems with the plugin at <https://github.com/ricardofrantz/fortran-lsp/issues>. Report problems with the language server itself at <https://github.com/fortran-lang/fortls/issues>.
+Report problems with the plugin at <https://github.com/machine-made/fortran-lsp/issues>. Report problems with the language server itself at <https://github.com/fortran-lang/fortls/issues>.
 
 ## More Information
 - [fortls Documentation](https://fortls.fortran-lang.org/)

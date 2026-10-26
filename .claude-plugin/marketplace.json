@@ -4,7 +4,7 @@
   "description": "Fortran Language Server (fortls) marketplace for Claude Code",
   "owner": {
     "name": "Ricardo Frantz",
-    "url": "https://github.com/ricardofrantz"
+    "url": "https://github.com/machine-made"
   },
   "plugins": [
     {
@@ -13,11 +13,11 @@
       "version": "1.2.0",
       "author": {
         "name": "Ricardo Frantz",
-        "url": "https://github.com/ricardofrantz"
+        "url": "https://github.com/machine-made"
       },
       "source": "./plugins/fortls-lsp",
       "homepage": "https://fortls.fortran-lang.org/",
-      "repository": "https://github.com/ricardofrantz/fortran-lsp",
+      "repository": "https://github.com/machine-made/fortran-lsp",
       "license": "MIT",
       "keywords": [
         "fortran",
