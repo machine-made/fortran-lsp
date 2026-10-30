@@ -1,0 +1,12 @@
+version: 2
+updates:
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows"
+    open-pull-requests-limit: 5
+    schedule:
+      interval: monthly
+    groups:
+      github-actions-updates:
+        patterns:
+          - "*"
