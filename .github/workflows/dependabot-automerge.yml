@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Find the open PR for the head branch
         id: find-pr
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
         with:
           script: |
             const { data: pulls } = await github.rest.pulls.list({
@@ -42,7 +42,7 @@ jobs:
             core.setOutput('head_sha', pr.head.sha);
       - name: Check all checks on the head SHA
         id: check-status
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
         if: steps.find-pr.outputs.pr_number != ''
         env:
           PR_HEAD_SHA: ${{ steps.find-pr.outputs.head_sha }}
@@ -73,6 +73,30 @@ jobs:
             const commitStatuses = [...latest.values()];
             let allSuccess = true;
             let hasPending = false;
+            // Every listed CI workflow that runs on this SHA must finish with
+            // success. GitHub creates all runs of one push at once (queued), so
+            // when the first one finishes the others already show here. A
+            // workflow with a path filter that skips this PR has no run and is
+            // not waited for.
+            const ciFiles = ["ci.yml"];
+            const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head_sha: headSha,
+              per_page: 100
+            });
+            for (const file of ciFiles) {
+              // The list is newest first: the first match is the latest run.
+              const run = runs.find(r => (r.path || "").split("@")[0] === `.github/workflows/${file}`);
+              if (!run) {
+                continue;
+              }
+              if (run.status !== 'completed') {
+                hasPending = true;
+              } else if (run.conclusion !== 'success') {
+                allSuccess = false;
+              }
+            }
             for (const run of checkRuns) {
               // Count only CI jobs. Review bots (CodeRabbit, cubic) add check
               // runs that can stay in_progress for a long time; nothing
@@ -110,7 +134,7 @@ jobs:
             core.setOutput('status', 'success');
       - name: Merge the PR
         if: steps.check-status.outputs.status == 'success'
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
         env:
           PR_NUMBER: ${{ steps.find-pr.outputs.pr_number }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
