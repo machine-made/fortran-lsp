@@ -1,15 +1,21 @@
 # fortran-lsp
 
-Fortran Language Server ([fortls](https://github.com/fortran-lang/fortls)) marketplace plugin for Claude Code.
+Fortran plugin for Claude, `fortls-lsp`:
+
+- a `fortran` skill that compile-checks every Fortran edit with gfortran, debugs
+  runtime errors and writes modern Fortran, in Claude Code, Cowork and Claude apps;
+- the [fortls](https://github.com/fortran-lang/fortls) language server for code
+  intelligence in Claude Code.
 
 ## Installation
 
-1. **Install fortls:**
+1. **Install gfortran** for compile checks (`brew install gcc`, `sudo apt-get install gfortran`, …)
+   **and fortls** for the language server in Claude Code:
    ```bash
    uv tool install fortls
    ```
 
-2. **Install the plugin:**
+2. **Install the plugin** (in Claude apps and Cowork: **Customize > Plugins**):
    ```
    /plugin install fortls-lsp --marketplace machine-made/fortran-lsp
    ```
@@ -25,6 +31,14 @@ Large projects can tune indexing (excluded paths, extra suffixes, preprocessor
 definitions) with a `.fortls` file at the project root — see
 [plugins/fortls-lsp/README.md](plugins/fortls-lsp/README.md) and the
 [fortls options reference](https://fortls.fortran-lang.org/options.html).
+
+## Development
+
+```bash
+python3 -m unittest discover -s tests -v   # needs gfortran
+```
+
+Release notes are in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
