@@ -10,21 +10,23 @@ checker below reports no errors.
 
 ## 1. Tools
 
-Run `gfortran --version`. The checker needs gfortran and Python 3.
+Run `gfortran --version` before the first edit. The checker needs gfortran and Python 3.
 
-If gfortran is missing, tell the user and give the install command for their system.
-**Ask before installing anything, and never install without a yes:**
+If gfortran is missing (or the checker exits with status 2), **stop and ask the user
+before installing anything**, for example: "gfortran isn't installed here, so I can't
+compile-check the code. Shall I install it with `<command>`?" Never install without a yes.
 
 | System | Command |
 | --- | --- |
+| Debian, Ubuntu, Claude's code sandbox | `sudo apt-get update && sudo apt-get install -y gfortran` |
 | macOS (Homebrew) | `brew install gcc` |
-| Debian, Ubuntu | `sudo apt-get install gfortran` |
 | Fedora | `sudo dnf install gcc-gfortran` |
 | conda | `conda install -c conda-forge gfortran` |
 | Windows (MSYS2) | `pacman -S mingw-w64-ucrt-x86_64-gcc-fortran` |
 
-If gfortran cannot be installed, carry on by reading the code closely, and say
-plainly in your answer that no compile check ran.
+If the user says no, or the install fails, carry on by reading the code closely. Then
+the **first line of your answer** must be: `Not compile-checked: gfortran is not
+available here.` Never describe unchecked code as fixed, verified or compiling.
 
 ## 2. Check after every edit
 
