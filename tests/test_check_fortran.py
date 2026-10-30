@@ -68,6 +68,30 @@ class CheckFortran(unittest.TestCase):
         finally:
             shutil.rmtree(FIX.parent / "_tmp", ignore_errors=True)
 
+    def test_nested_submodules_in_ancestor_order(self):
+        rc, out, _ = run("submods", "--root", "submods")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("3 file(s), 0 error(s)", out)
+
+    def test_files_using_a_changed_module_are_checked(self):
+        rc, out, _ = run("users/lib.f90", "--root", "users")
+        self.assertEqual(rc, 1, out)
+        self.assertRegex(out, r"users/app\.f90:5:\d+: error: Missing actual argument .*\[this file uses a module you changed\]")
+
+    def test_no_users_checks_only_the_given_files(self):
+        rc, out, _ = run("users/lib.f90", "--root", "users", "--no-users")
+        self.assertEqual(rc, 0, out)
+
+    def test_continued_use_statement_is_followed(self):
+        rc, out, _ = run("continued/top.f90", "--root", "continued")
+        self.assertEqual(rc, 0, out)
+
+    def test_unknown_module_reports_gfortran_message(self):
+        rc, out, _ = run("unknown/p.f90", "--root", "unknown")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("Cannot open module file 'not_in_this_project.mod'", out)
+        self.assertNotIn("compilation terminated", out)
+
     def test_project_tree_is_not_written(self):
         before = sorted(p for p in (FIX / "modules").rglob("*"))
         run("modules", "--root", "modules")

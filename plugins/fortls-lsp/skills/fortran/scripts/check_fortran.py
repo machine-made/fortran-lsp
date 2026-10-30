@@ -37,10 +37,11 @@ MODULE_RE = re.compile(
     r"^\s*module\s+(?!(?:procedure|function|subroutine|pure|impure|elemental|recursive)\b)(\w+)\s*(?:!.*)?$",
     re.I,
 )
-SUBMODULE_RE = re.compile(r"^\s*submodule\s*\(\s*(\w+)", re.I)
+SUBMODULE_RE = re.compile(r"^\s*submodule\s*\(\s*(\w+)\s*(?::\s*(\w+))?\s*\)\s*(\w+)", re.I)
 USE_RE = re.compile(r"^\s*use\b\s*(,\s*(non_)?intrinsic\s*)?(::)?\s*(\w+)", re.I)
-DIAG_RE = re.compile(r"^(.+?):(\d+):(?:(\d+):)?\s*(Fatal Error|Error|Warning):\s*(.*)$")
-MISSING_MOD_RE = re.compile(r"Cannot open module file '([^']+)\.mod'", re.I)
+DIAG_RE = re.compile(r"^(.+?):(\d+):(?:(\d+):)?\s*(Fatal Error|Error|Warning):\s*(.*)$", re.M)
+FATAL_RE = re.compile(r"^\S+: Fatal Error:\s*(.*)$", re.M)
+MISSING_MOD_RE = re.compile(r"Cannot open module file '[^']+\.mod'|Module file '[^']+\.smod' has not been generated")
 
 
 def is_fortran(path: Path) -> bool:
@@ -99,13 +100,26 @@ def scan(path: Path) -> tuple[set[str], set[str]]:
     except OSError:
         return defines, uses
     fixed = path.suffix.lower() in FIXED
+    logical: list[str] = []
+    joining = False
     for line in lines:
         if fixed and line[:1] in ("c", "C", "*", "!"):
             continue
+        part = line.split("!", 1)[0].rstrip()
+        if joining and logical:
+            logical[-1] += part.lstrip().lstrip("&")
+        else:
+            logical.append(part)
+        joining = not fixed and logical[-1].endswith("&")
+        if joining:
+            logical[-1] = logical[-1][:-1]
+    for line in logical:
         if m := MODULE_RE.match(line):
             defines.add(m.group(1).lower())
         elif m := SUBMODULE_RE.match(line):
-            uses.add(m.group(1).lower())
+            parent, ancestor, name = (g.lower() if g else g for g in m.groups())
+            defines.add(f"{parent}@{name}")
+            uses.add(f"{parent}@{ancestor}" if ancestor else parent)
         elif (m := USE_RE.match(line)) and not (m.group(1) and not m.group(2)):
             name = m.group(4).lower()
             if name not in INTRINSIC:
@@ -113,13 +127,15 @@ def scan(path: Path) -> tuple[set[str], set[str]]:
     return defines, uses
 
 
-def order(targets: list[Path], pool: list[Path]) -> list[Path]:
-    """Targets plus the files defining the modules they need, providers first."""
+def order(targets: list[Path], pool: list[Path]) -> tuple[list[Path], set[Path]]:
+    """Files to check, providers first, and the files that use modules the targets define."""
     info = {p: scan(p) for p in set(pool) | set(targets)}
     provider: dict[str, Path] = {}
     for p in sorted(info):
         for mod in info[p][0]:
             provider.setdefault(mod, p)
+    changed = set().union(*(info[t][0] for t in targets))
+    users = {p for p in info if p not in targets and info[p][1] & changed}
     seen: set[Path] = set()
     result: list[Path] = []
 
@@ -135,9 +151,9 @@ def order(targets: list[Path], pool: list[Path]) -> list[Path]:
         seen.add(p)
         result.append(p)
 
-    for t in targets:
+    for t in [*targets, *sorted(users)]:
         visit(t, set())
-    return result
+    return result, users
 
 
 def compile_one(fc: str, path: Path, base: list[str], moddir: str) -> tuple[int, str]:
@@ -145,7 +161,7 @@ def compile_one(fc: str, path: Path, base: list[str], moddir: str) -> tuple[int,
     cpp = suffix != suffix.lower() or suffix.lower() == ".fpp"
     form = "-ffixed-form" if suffix.lower() in FIXED else "-ffree-form"
     lang = "f95-cpp-input" if cpp else "f95"
-    cmd = [fc, "-fsyntax-only", "-fdiagnostics-plain-output", "-fmax-errors=20", form,
+    cmd = [fc, "-fsyntax-only", "-fno-diagnostics-show-caret", "-fmax-errors=20", form,
            f"-J{moddir}", f"-I{moddir}", f"-I{path.parent}", *base]
     if cpp:
         cmd.append("-cpp")
@@ -161,13 +177,18 @@ def compile_one(fc: str, path: Path, base: list[str], moddir: str) -> tuple[int,
 def parse(stderr: str, path: Path) -> list[tuple[str, int, int, str, str]]:
     diags = []
     for line in stderr.splitlines():
-        m = DIAG_RE.match(line)
-        if not m:
-            continue
-        file, ln, col, kind, msg = m.groups()
-        level = "warning" if kind == "Warning" else "error"
-        diags.append((file or str(path), int(ln), int(col or 1), level, msg.strip()))
+        if m := DIAG_RE.match(line):
+            file, ln, col, kind, msg = m.groups()
+            level = "warning" if kind == "Warning" else "error"
+            diags.append((file, int(ln), int(col or 1), level, msg.strip()))
+        elif m := FATAL_RE.match(line):
+            diags.append((str(path), 1, 1, "error", m.group(1).strip()))
     return diags
+
+
+def only_missing_modules(diags) -> bool:
+    errs = [d for d in diags if d[3] == "error"]
+    return bool(errs) and all(MISSING_MOD_RE.search(d[4]) for d in errs)
 
 
 def rel(p: str) -> str:
@@ -190,6 +211,8 @@ def main(argv=None) -> int:
     ap.add_argument("--flag", action="append", default=[], help="extra gfortran flag, e.g. --flag=-fopenmp")
     ap.add_argument("--fc", default="gfortran", help="gfortran executable (default: gfortran)")
     ap.add_argument("--no-warnings", action="store_true", help="do not pass -Wall")
+    ap.add_argument("--no-users", dest="users", action="store_false",
+                    help="do not also check the files that use modules defined in the given files")
     args = ap.parse_args(argv)
 
     fc = shutil.which(args.fc)
@@ -226,9 +249,12 @@ def main(argv=None) -> int:
     base += [f"-D{d}" for d in args.defs] + args.flag
 
     pool = walk(root, excluded) if root.is_dir() else []
-    queue = order(targets, pool)
+    queue, users = order(targets, pool)
+    if not args.users:
+        queue = [p for p in queue if p not in users]
+        users = set()
     target_set = set(targets)
-    results: dict[Path, tuple[int, str]] = {}
+    results: dict[Path, tuple[int, list]] = {}
 
     with tempfile.TemporaryDirectory(prefix="fortran-check-") as moddir:
         pending = queue
@@ -236,8 +262,12 @@ def main(argv=None) -> int:
             retry = []
             for p in pending:
                 rc, err = compile_one(fc, p, base, moddir)
-                results[p] = (rc, err)
-                if rc and MISSING_MOD_RE.search(err) and len(DIAG_RE.findall(err)) == 1:
+                diags = parse(err, p)
+                if rc and not diags:
+                    lines = [ln for ln in err.strip().splitlines() if ln != "compilation terminated."]
+                    diags = [(str(p), 1, 1, "error", f"gfortran failed: {lines[0] if lines else 'no output'}")]
+                results[p] = (rc, diags)
+                if rc and only_missing_modules(diags):
                     retry.append(p)
             if len(retry) == len(pending):
                 break
@@ -245,19 +275,22 @@ def main(argv=None) -> int:
 
     errors = warnings = 0
     for p in queue:
-        rc, err = results[p]
-        for file, ln, col, level, msg in parse(err, p):
-            if p not in target_set and level == "warning":
+        _, diags = results[p]
+        for file, ln, col, level, msg in diags:
+            if p in target_set:
+                note = ""
+            elif level == "warning":
                 continue
-            note = "" if p in target_set else " [in a module this file needs]"
+            elif p in users:
+                note = " [this file uses a module you changed]"
+            else:
+                note = " [in a module this file needs]"
             print(f"{rel(file)}:{ln}:{col}: {level}: {msg}{note}")
             errors += level == "error"
             warnings += level == "warning"
-        if rc and not parse(err, p):
-            print(f"{rel(str(p))}:1:1: error: gfortran failed: {err.strip().splitlines()[-1] if err.strip() else 'no output'}")
-            errors += 1
 
-    print(f"fortran-check: {len(targets)} file(s), {errors} error(s), {warnings} warning(s)")
+    extra = f" (and {len(users)} file(s) using their modules)" if users else ""
+    print(f"fortran-check: {len(targets)} file(s){extra}, {errors} error(s), {warnings} warning(s)")
     return 1 if errors else 0
 
 

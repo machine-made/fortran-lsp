@@ -3,7 +3,7 @@
   "name": "fortls-lsp",
   "displayName": "Fortran (fortls + gfortran)",
   "version": "1.3.0",
-  "description": "gfortran compile checks after every Fortran edit, runtime debugging and modern Fortran conventions, plus fortls code intelligence in Claude Code",
+  "description": "Fortran plugin: compile-checks Fortran edits with gfortran when it is installed, debugs runtime errors and follows modern Fortran conventions; adds fortls code intelligence in Claude Code",
   "author": {
     "name": "Ricardo Frantz",
     "url": "https://github.com/machine-made"

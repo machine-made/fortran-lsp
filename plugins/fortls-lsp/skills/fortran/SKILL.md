@@ -35,15 +35,17 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_fortran.py <files or directories>
 Where `${CLAUDE_SKILL_DIR}` is not replaced, the script is `scripts/check_fortran.py`
 next to this file.
 
-- It runs `gfortran -fsyntax-only -Wall` on each file, in module order, and also
-  checks the files that define the modules those files use.
+- It runs `gfortran -fsyntax-only -Wall` on each file, in module order. It also
+  checks the files that define the modules those files use, and the files that use
+  modules the given files define, so a changed interface shows up at its callers.
 - It prints one line per problem, `path:line:col: error|warning: message`, then a
   summary. Exit status 0 means no errors, 1 means errors, 2 means the check could not
   run (gfortran missing, path wrong).
 - It reads `pp_defs`, `include_dirs` and `excl_paths` from a `.fortls`, `.fortlsrc` or
   `.fortls.json` file at the project root. It writes nothing into the project.
 - Options: `--std f2018` to hold the code to a standard, `-I dir`, `-D NAME=value`,
-  `--flag=-fopenmp` for any other gfortran flag, `--root dir` for the project root.
+  `--flag=-fopenmp` for any other gfortran flag, `--root dir` for the project root,
+  `--no-users` to skip the files that use the given files' modules.
 
 Fix every error, then run the check again until it is clean. Fix the warnings your
 change caused; leave warnings in code you did not touch unless asked.
@@ -63,8 +65,9 @@ gfortran -O0 -g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow \
 ```
 
 With fpm: `fpm run --profile debug --flag "-fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow"`.
-`-fcheck=all` catches out-of-bounds indices and bad argument shapes; `-finit-real=snan`
-makes uninitialised reals fail loudly. Do not leave debug flags in the project's build.
+`-fcheck=all` catches out-of-bounds indices, unallocated arrays and bad pointers;
+`-ffpe-trap` stops at the first NaN, division by zero or overflow; `-finit-real=snan`
+makes uninitialised reals trip it. Do not leave debug flags in the project's build.
 
 ## 4. Writing Fortran
 

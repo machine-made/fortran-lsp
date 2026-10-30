@@ -52,7 +52,8 @@ reading it, and says that no compile check ran.
 
 The skill runs `skills/fortran/scripts/check_fortran.py`, a single Python file that
 uses only the standard library. It runs `gfortran -fsyntax-only -Wall` on the files
-Claude changed, in module order, and on the files that define the modules they use.
+Claude changed, in module order, on the files that define the modules they use, and on
+the files that use modules the changed files define.
 It prints one line per problem (`path:line:col: error|warning: message`). Module files
 go to a temporary folder that is deleted afterwards, so nothing is written into your
 project. The check does not link; Claude finishes with your project's own build
@@ -60,9 +61,9 @@ project. The check does not link; Claude finishes with your project's own build
 
 ## Supported extensions
 
-Free form: `.f90`, `.f95`, `.f03`, `.f08`. Fixed form: `.f`, `.f77`, `.for`. Preprocessed:
-`.fpp` and the uppercase variants of each, which the check runs through the C
-preprocessor. The language server indexes the same set.
+Free form: `.f90`, `.f95`, `.f03`, `.f08`. Fixed form: `.f`, `.f77`, `.for`, and `.fpp`,
+which is also preprocessed. The uppercase variants of each (`.F90`, `.F`, …) go through
+the C preprocessor too. The language server indexes the same set.
 
 ## Project configuration
 
@@ -96,7 +97,9 @@ arguments per key (`pp_defs` in particular resets unless restated in the file).
 
 ## Privacy
 
-This plugin collects no data and sends nothing over the network.
+This plugin collects no data and sends nothing over the network. The only downloads
+are the ones you approve: installing gfortran or fortls fetches them from your package
+manager or PyPI.
 
 - The skill runs gfortran and the check script on the code in your project, on the
   machine or sandbox where Claude is working. The script makes no network
@@ -114,6 +117,12 @@ Report problems with the plugin at <https://github.com/machine-made/fortran-lsp/
 Report problems with the language server itself at
 <https://github.com/fortran-lang/fortls/issues>, and with gfortran at
 <https://gcc.gnu.org/bugzilla/>.
+
+## Credits
+
+fortls is developed by the [fortran-lang](https://fortran-lang.org/) community and
+gfortran by the [GCC project](https://gcc.gnu.org/). This plugin uses them as
+installed; it is not affiliated with either project.
 
 ## More information
 
