@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.1
+
+- Changed the `fortran` skill to stop and ask before installing gfortran when it is missing, with the command that works in Claude's code sandbox (`apt-get update` first)
+- Changed the `fortran` skill so an answer about code that was not compile-checked starts with "Not compile-checked: gfortran is not available here." and never calls the code verified
+- Changed the README to say the Claude apps sandbox starts without gfortran
+
 ## 1.3.0
 
 - Added the `fortran` skill, which works in Claude Code, Cowork and Claude apps: Claude compile-checks every Fortran edit with gfortran, debugs runtime errors with gfortran's checking flags and follows modern Fortran conventions

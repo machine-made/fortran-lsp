@@ -18,8 +18,10 @@ Fortran plugin for Claude. It has two parts:
 
 The skill's compile checks need gfortran wherever Claude runs the code: on your
 computer in Claude Code and Cowork, and in the code-execution sandbox in Claude apps.
-Without gfortran the skill still applies its conventions and reviews the code by
-reading it, and says that no compile check ran.
+The Claude apps sandbox has no gfortran at first; Claude asks you, then installs it
+there with `apt-get`, which only changes that temporary sandbox. Without gfortran the
+skill still applies its conventions and reviews the code by reading it, and its answer
+starts with "Not compile-checked".
 
 ## Installation
 
@@ -38,7 +40,7 @@ reading it, and says that no compile check ran.
    is missing, Claude shows the command and asks before running it.
    ```bash
    brew install gcc                  # macOS
-   sudo apt-get install gfortran     # Debian, Ubuntu
+   sudo apt-get update && sudo apt-get install -y gfortran   # Debian, Ubuntu
    sudo dnf install gcc-gfortran     # Fedora
    ```
 
