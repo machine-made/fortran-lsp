@@ -1,24 +1,27 @@
 {
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "fortls-lsp",
-  "displayName": "Fortran LSP (fortls)",
-  "version": "1.2.0",
-  "description": "Fortran language server (fortls) for code intelligence and diagnostics",
+  "displayName": "Fortran (fortls + gfortran)",
+  "version": "1.3.0",
+  "description": "gfortran compile checks after every Fortran edit, runtime debugging and modern Fortran conventions, plus fortls code intelligence in Claude Code",
   "author": {
     "name": "Ricardo Frantz",
     "url": "https://github.com/machine-made"
   },
-  "homepage": "https://fortls.fortran-lang.org/",
+  "homepage": "https://github.com/machine-made/fortran-lsp",
   "repository": "https://github.com/machine-made/fortran-lsp",
   "supportUrl": "https://github.com/machine-made/fortran-lsp/issues",
   "privacyPolicyUrl": "https://github.com/machine-made/fortran-lsp/blob/main/plugins/fortls-lsp/README.md#privacy",
   "license": "MIT",
-  "keywords": ["fortran", "fortls", "lsp", "language-server", "hpc", "scientific-computing"],
+  "keywords": ["fortran", "fortls", "gfortran", "lsp", "language-server", "hpc", "scientific-computing"],
   "icon": "./.claude-plugin/icon.png",
   "lspServers": {
     "fortls": {
       "command": "fortls",
-      "args": ["--notify_init", "--disable_autoupdate"],
+      "args": [
+        "--notify_init",
+        "--disable_autoupdate"
+      ],
       "startupTimeout": 120000,
       "extensionToLanguage": {
         ".f": "fortran",

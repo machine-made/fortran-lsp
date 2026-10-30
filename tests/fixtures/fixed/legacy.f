@@ -1,0 +1,7 @@
+      PROGRAM LEGACY
+      IMPLICIT NONE
+      REAL X
+C     A COMMENT LINE IN FIXED FORM
+      X = 2.0
+      PRINT *, X
+      END

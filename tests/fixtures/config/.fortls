@@ -1,0 +1,4 @@
+{
+  "excl_paths": ["build"],
+  "pp_defs": {"NX": "16"}
+}

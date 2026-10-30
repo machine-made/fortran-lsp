@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Install gfortran
+        run: |
+          if ! command -v gfortran >/dev/null; then
+            if [ "$RUNNER_OS" = macOS ]; then
+              brew install gcc
+              ln -sf "$(ls "$(brew --prefix)"/bin/gfortran-* | head -1)" "$(brew --prefix)/bin/gfortran"
+            else
+              sudo apt-get update && sudo apt-get install -y gfortran
+            fi
+          fi
+          gfortran --version
+
+
+      - name: Tests
+        run: python3 -m unittest discover -s tests -v
