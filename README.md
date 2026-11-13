@@ -1,6 +1,7 @@
-# fortran-lsp
+[![CI](https://github.com/machine-made/fortran-lsp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/machine-made/fortran-lsp/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Fortran plugin for Claude, `fortls-lsp`:
+`fortran-lsp` holds `fortls-lsp`, a Fortran plugin for Claude:
 
 - a `fortran` skill that compile-checks every Fortran edit with gfortran, debugs
   runtime errors and writes modern Fortran, in Claude Code, Cowork and Claude apps;
