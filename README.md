@@ -1,3 +1,5 @@
+![fortran-lsp banner](https://raw.githubusercontent.com/machine-made/fortran-lsp/main/assets/readme-banner-v3.jpg)
+
 [![CI](https://github.com/machine-made/fortran-lsp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/machine-made/fortran-lsp/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
